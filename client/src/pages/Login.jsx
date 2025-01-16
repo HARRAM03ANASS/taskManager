@@ -29,6 +29,15 @@ const Login = () => {
       const resultat = await login(data).unwrap();
       dispatch(setCredentials(resultat));
       navigate("/dashboard");
+      window.location.reload();
+
+      // if (resultat.shouldRefresh) {
+      //   // If shouldRefresh is true (user is an admin), reload the page
+      //   window.location.reload();
+      // } else {
+      //   // Otherwise, navigate to the dashboard
+      //   navigate("/dashboard");
+      // }
     } catch (error) {
       console.log(error);
       toast.error(error?.data?.message || error.message);

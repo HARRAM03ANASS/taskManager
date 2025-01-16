@@ -1,5 +1,4 @@
 import { apiSlice } from "../apiSlice"
-
 const TACHE_URL = "/tache";
 
 export const tacheApiSlice = apiSlice.injectEndpoints({
@@ -83,13 +82,20 @@ export const tacheApiSlice = apiSlice.injectEndpoints({
                 credentials: "include",
             }),
         }),
+        // getTachesForUser: builder.query({
+        //     query: (userId) => ({
+        //       url: `${TACHE_URL}/${userId}`,  // Make sure this matches your backend route
+        //       method: "GET",
+        //       credentials: "include"
+        //     }),
+        // })
         
         
     })
 });
 
 export const { 
-    useTachesSupprimeesMutation, 
+    useTachesSupprimeesMutation,
     useGetDashboardStatsQuery, 
     useGetAllTasksQuery, 
     useCreerTacheMutation, 
@@ -98,4 +104,5 @@ export const {
     useCreerSousTacheMutation,
     useGetSingleTaskQuery,
     useSearchTachesQuery,
+    // useGetTachesForUserQuery,
 } = tacheApiSlice;

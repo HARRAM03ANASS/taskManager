@@ -121,18 +121,22 @@ const TacheCard = ({ tache }) => {
           <span className="text-gray-500">Aucune sous tâche</span>
         </div>
       )}
-
       <div className="w-full pb-2">
-        <button
-          onClick={handleAddSousTacheClick} // Attach the click handler for the button
-          disabled={user.isAdmin ? false : true}
-          className="w-full flex gap-4 items-center text-sm text-gray-500 font-semibold disabled:cursor-not-allowed disabled::text-gray-300"
-        >
-          <IoMdAdd className="text-lg" />
-          <span>Ajouter une sous-tâche</span>
-        </button>
+        {
+          user?.isAdmin ? (
+            <button
+              onClick={handleAddSousTacheClick} // Attach the click handler for the button
+              disabled={user.isAdmin ? false : true}
+              className="w-full flex gap-4 items-center text-sm text-gray-500 font-semibold disabled:cursor-not-allowed disabled::text-gray-300"
+            >
+              <IoMdAdd className="text-lg" />
+              <span>Ajouter une sous-tâche</span>
+            </button>
+          ) : 
+          <div></div>
+        }
       </div>
-      <AjouterSousTache open={open} setOpen={setOpen} id={tache._id} />
+      <AjouterSousTache open={open} setOpen={setOpen} id={tache._id} equipe={equipes} />
     </div>
   );
 };

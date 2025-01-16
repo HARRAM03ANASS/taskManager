@@ -4,8 +4,9 @@ import dotenv from "dotenv";
 import express from "express";
 import morgan from "morgan";
 import dbConnection from "./utils/index.js";
-import {routeNotFound,errorHandler} from "./middleware/errorMiddleware.js"
+import {routeNotFound,errorHandler} from "./middleware/errorMiddleware.js";
 import routes from "./routes/index.js";
+
 
 dotenv.config();
 
@@ -14,6 +15,8 @@ dbConnection();
 const PORT = process.env.PORT || 5000;
 
 const app = express();
+
+
 
 app.use(cors({
     origin: ["http://localhost:3000", "http://localhost:3001"],
@@ -33,6 +36,7 @@ app.use("/api", routes);
 app.use(routeNotFound);
 
 app.use(errorHandler);
+
 
 
 

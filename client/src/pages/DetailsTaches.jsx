@@ -140,6 +140,8 @@ const DetailsTaches = () => {
                   <span className="font-semibold">Sous-tâches :</span>
                   <span>{tache?.sousTaches?.length}</span>
                 </div>
+                <div>
+                </div>
               </div>
               <div className="space-y-4 py-6">
                 <p className="text-gray-600 font-semibold text-sm">
@@ -168,11 +170,15 @@ const DetailsTaches = () => {
                   ))}
                 </div>
               </div>
+              <div>
+                <h3>description:</h3>
+                <p>{tache?.description}</p>
+              </div>
               <div className="space-y-4 py-6">
                 <p className="text-gray-500 font-semibold text-sm">
                   Sous tâches
                 </p>
-                <div className="space-y-8">
+                <div className="space-y-6">
                   {tache?.sousTaches?.map((element, index) => (
                     <div key={index} className="flex gap-3">
                       <div className="w-10 h-10 flex items-center justify-center rounded-full bg-violet-50">

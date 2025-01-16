@@ -9,8 +9,14 @@ const router = express.Router();
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/logout", logoutUser);
+
+
+// router.get('/log-in', (req, res) => {
+//     res.render('Login'); // Replace 'login' with the name of your view file
+// });
 router.get("/get-equipe", protectRoute, isAdminRoute, getTeamList);
 router.get("/notifications", protectRoute, getNotificationsList);
+
 
 router.put("/profil", protectRoute, updateUserProfile);
 router.put("/lire-notif", protectRoute, markNotificationRead);

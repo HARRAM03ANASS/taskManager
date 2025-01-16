@@ -145,7 +145,7 @@ const TableUtilisateurs = ({ users }) => {
 const Dashboard = () => {
   const { data } = useGetDashboardStatsQuery();
   const totals = data?.taches;
-  // console.log(data);
+  console.log(data);
 
   const stats = [
     {

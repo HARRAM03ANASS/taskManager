@@ -1,6 +1,7 @@
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Taches from "./pages/Taches";
+import UserTasks from "./pages/UserTasks";
 import Users from "./pages/Users";
 import DeletedItems from "./pages/DeletedItems";
 import DetailsTaches from "./pages/DetailsTaches";
@@ -119,6 +120,7 @@ function App() {
           <Route path="/equipe" element={<Users />} />
           <Route path="/supprime" element={<DeletedItems />} />
           <Route path="/tache/:id" element={<DetailsTaches />} />
+          <Route path="/user-tasks/:userId" element={<UserTasks />} />
         </Route>
         <Route path="/log-in" element={<Login />} />
       </Routes>

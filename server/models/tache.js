@@ -81,9 +81,9 @@ const tacheSchema = new Schema({
     },
     sousTaches: [
         {
-            titre: String,
-            date: Date,
-            tag: String
+            titre: { type: String, required: true },
+            date: { type: Date, required: true },
+            tag: { type: String, required: true },
         },
     ],
     atouts: [{

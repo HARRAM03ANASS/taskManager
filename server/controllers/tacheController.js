@@ -1,307 +1,3 @@
-// import Tache from "../models/tache.js";
-// import Utilisateur from "../models/user.js";
-// import Notification from "../models/notification.js";
-// import { sendEmail } from '../utils/email.js' // Adjust the path according to your folder structure
-
-// export const creerTache = async (req, res) => {
-//     try {
-//       const { userId } = req.utilisateur;
-//       const { titre, equipe, phase, date, priorite, atouts } = req.body;
-//       let text = "Une nouvelle tâche vous a été assignée";
-//       if (equipe?.length > 1) {
-//         text = text + `et ${equipe?.length - 1} autres`;
-//       }
-//       text =
-//         text +
-//         `La priorité de la tâche est définie comme étant de ${priorite}, veuillez vérifier et agir. La date de la tâche est ${new Date(date).toDateString()}. Merci en avance !`;
-  
-//       const tache = await Tache.create({
-//         titre,
-//         equipe,
-//         phase: phase,
-//         date,
-//         priorite: priorite,
-//         atouts,
-//       });
-  
-//       // Send emails to all team members
-//       for (let memberId of equipe) {
-//         const utilisateur = await Utilisateur.findById(memberId);
-//         console.log(utilisateur.email)
-//         if (utilisateur && utilisateur.email) {
-//           const subject = `Nouvelle tâche assignée: ${titre}`;
-//           const message = `Bonjour ${utilisateur.nom},\n\n${text}`;
-//             await sendEmail(utilisateur.email, subject, message); // Send email
-//         }
-//       }
-  
-//       await Notification.create({
-//         equipe,
-//         text,
-//         tache: tache._id,
-//       });
-  
-//       res.status(200).json({ status: true, tache, message: "Tache créée avec succès." });
-//     } catch (error) {
-//       console.log(error);
-//       return res.status(400).json({ status: false, message: error.message });
-//     }
-//   };
-
-
-// export const dupliquerTache = async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         const tache = await Tache.findById(id);
-//         const nouvelleTache = await Tache.create({
-//             ...tache, titre: tache.titre + " - Dupliquée"
-//         });
-//         nouvelleTache.equipe = tache.equipe;
-//         nouvelleTache.sousTaches = tache.sousTaches;
-//         nouvelleTache.atouts = tache.atouts;
-//         nouvelleTache.priorite = tache.priorite;
-//         nouvelleTache.phase = tache.phase;
-
-//         await nouvelleTache.save();
-
-//         // notifier les utilisateurs sur la tâche
-//         let text = "Une nouvelle tâche vous a été assignée.";
-//         if (tache.equipe.length > 1) {
-//             // text = text + ` et ${tache.equipe.length - 1} autres`;
-//         }
-//         text = text + `La priorité de la tâche est définie comme étant ${tache.priorite}, veuillez vérifier et agir. La date de la tâche est ${tache.date.toDateString()}. Merci en avance !`
-//         await Notification.create({
-//             equipe: tache.equipe,
-//             text,
-//             tache: nouvelleTache._id
-//         });
-//         res.status(200).json({ status: true, message: "Tâche dupliquée avec succès" })
-
-//     } catch (error) {
-//         console.log(error);
-//         return res.status(400).json({ status: false, message: error.message });
-//     }
-// };
-
-
-// export const posteActiviteTache = async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         const { userId } = req.utilisateur;
-//         // const {userId} = req.user;
-//         const { type, activite } = req.body;
-//         const tache = await Tache.findById(id);
-//         const donnees = {
-//             type,
-//             activite,
-//             par: userId
-//         };
-//         tache.activites.push(donnees)
-//         await tache.save();
-
-//         res.status(200).json({ status: true, message: "Activité postée avec succès" });
-
-//     } catch (error) {
-//         console.log(error);
-//         return res.status(400).json({ status: false, message: error.message });
-//     }
-// };
-
-
-// export const statistiquesDashboard = async (req, res) => {
-//     try {
-//         const { userId, isAdmin } = req.utilisateur;
-//         const toutesTaches = isAdmin ? await Tache.find({
-//             isTrashed: false
-//         }).populate({ path: "equipe", select: "nom role titre email" }).sort({ _id: -1 })
-//             : await Tache.find({
-//                 isTrashed: false,
-//                 equipe: { $all: [userId] }
-//             }).populate({ path: "equipe", select: "nom role titre email" }).sort({ _id: -1 })
-//             ;
-
-//         const utilisateurs = await Utilisateur.find({ isActive: true }).select("nom titre role isAdmin creeLe").limit(10).sort({ _id: -1 });
-
-
-//         const groupeTaches = toutesTaches.reduce((resultat, tache) => {
-//             const phase = tache.phase;
-//             if (!resultat[phase]) {
-//                 resultat[phase] = 1;
-//             }
-//             else {
-//                 resultat[phase] += 1;
-//             }
-//             return resultat
-//         }, {});
-
-//         // Grouper les tâches par priorité
-//         const groupDonnees = Object.entries(
-//             toutesTaches.reduce((resultat, tache) => {
-//                 const { priorite } = tache
-//                 resultat[priorite] = (resultat[priorite] || 0) + 1;
-//                 return resultat;
-//             }, {})).map(([nom, total]) => ({ nom, total }));
-
-//         // Calculer le total des tâches
-//         const totalTaches = toutesTaches?.length;
-//         const derniere10Tache = toutesTaches?.slice(0, 10);
-
-//         const summary = {
-//             totalTaches,
-//             derniere10Tache,
-//             utilisateurs: isAdmin ? utilisateurs : [],
-//             taches: groupeTaches,
-//             graphDonnees: groupDonnees
-//         };
-
-//         res.status(200).json({
-//             status: true, message: "En succès", ...summary
-//         });
-
-//     } catch (error) {
-//         console.log(error);
-//         return res.status(400).json({ status: false, message: error.message });
-//     }
-// };
-
-
-// export const recupererTaches = async (req, res) => {
-//     try {
-//         const { phase, isTrashed } = req.query;
-//         let query = { isTrashed: isTrashed ? true : false };
-//         if (phase) {
-//             query.phase = phase;
-//         }
-//         let queryResultat = Tache.find(query).populate({
-//             path: "equipe",
-//             select: "nom titre email"
-//         }).sort({ _id: -1 });
-//         const taches = await queryResultat;
-//         res.status(200).json({
-//             status: true,
-//             taches
-//         })
-//     } catch (error) {
-//         console.log(error);
-//         return res.status(400).json({ status: false, message: error.message });
-//     }
-// };
-
-
-// export const recupererTache = async (req, res) => {
-//     try {
-//         // const { id } = res.params;
-//         const { id } = req.params;
-//         const tache = await Tache.findById(id)
-//             .populate({
-//                 path: "equipe",
-//                 select: "nom titre role email"
-//             })
-//             .populate({
-//                 path: "activitees.par",
-//                 select: "nom"
-//             })
-//             .sort({ _id: -1 });
-//         res.status(200).json({
-//             status: true,
-//             tache
-//         });
-//     } catch (error) {
-//         console.log(error);
-//         return res.status(400).json({ status: false, message: error.message });
-//     }
-// };
-
-
-// export const modifierTache = async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         const { titre, date, equipe, phase, priorite, atouts } = req.body;
-//         const tache = await Tache.findById(id);
-
-//         tache.titre = titre;
-//         tache.date = date;
-//         tache.priorite = priorite;
-//         tache.atouts = atouts;
-//         tache.phase = phase;
-//         tache.equipe = equipe;
-
-//         await tache.save();
-
-//         res.status(200).json({ status: true, message: "Tâche modifiée avec succès" });
-
-//     } catch (error) {
-//         console.log(error);
-//         return res.status(400).json({ status: false, message: error.message });
-//     }
-// }
-
-
-// export const tacheSupprimee = async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         const tache = await Tache.findById(id);
-//         tache.isTrashed = true;
-//         await tache.save();
-//         res.status(200).json({
-//             status: true,
-//             message: "Tâche supprimée avec succès"
-//         });
-//     } catch (error) {
-//         console.log(error);
-//         return res.status(400).json({ status: false, message: error.message });
-//     }
-// }
-
-
-// export const supprimerRestorer = async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         const { actionType } = req.query;
-
-
-//         if (actionType === "supprimer") {
-//             await Tache.findByIdAndDelete(id);
-//         } else if (actionType === "supprimerTous") {
-//             await Tache.deleteMany({ isTrashed: true })
-//         } else if (actionType === "restorer") {
-//             const resp = await Tache.findById(id)
-//             resp.isTrashed = false;
-//             resp.save();
-//         } else if (actionType === "restorerTous") {
-//             await Tache.updateMany({ isTrashed: true }, { $set: { isTrashed: false } });
-//         }
-//         res.status(200).json({ status: true, message: true, message: `Opération effectuée avec succès` });
-//     } catch (error) {
-//         console.log(error);
-//         return res.status(400).json({ status: false, message: error.message });
-//     }
-// }
-
-
-// export const creerSousTache = async (req, res) => {
-//     try {
-//         console.log("Données reçues :", req.body); // Ajoutez ce log
-//         const { titre, date, tag } = req.body;
-
-//         console.log('Corps de la requête :', req.body);
-//         console.log('Paramètres :', req.params);
-//         const { id } = req.params;
-//         const NouvellesSousTache = {
-//             titre,
-//             date,
-//             tag
-//         };
-//         const tache = await Tache.findById(id);
-//         tache.sousTaches.push(NouvellesSousTache);
-//         await tache.save();
-//         res.status(200).json({ status: true, message: "Sous tâche ajoutée avec succès" })
-//     } catch (error) {
-//         console.log(error);
-//         return res.status(400).json({ status: false, message: error.message });
-//     }
-// }
-
 import Tache from "../models/tache.js";
 import Utilisateur from "../models/user.js";
 import Notification from "../models/notification.js";
@@ -531,19 +227,34 @@ export const statistiquesDashboard = async (req, res) => {
 export const recupererTaches = async (req, res) => {
     try {
         const { phase, isTrashed } = req.query;
+        const { userId, isAdmin } = req.utilisateur;
+
+        // Base query with trashed status
         let query = { isTrashed: isTrashed ? true : false };
+        
+        // Add phase filter if provided
         if (phase) {
             query.phase = phase;
         }
-        let queryResultat = Tache.find(query).populate({
-            path: "equipe",
-            select: "nom titre email"
-        }).sort({ _id: -1 });
-        const taches = await queryResultat;
+
+        // Add team member filter for non-admin users
+        if (!isAdmin) {
+            query.equipe = userId;
+        }
+
+        // Execute query with population
+        let taches = await Tache.find(query)
+            .populate({
+                path: "equipe",
+                select: "nom titre email"
+            })
+            .sort({ _id: -1 });
+
         res.status(200).json({
             status: true,
             taches
-        })
+        });
+
     } catch (error) {
         console.log(error);
         return res.status(400).json({ status: false, message: error.message });
@@ -578,11 +289,31 @@ export const recupererTache = async (req, res) => {
 export const modifierTache = async (req, res) => {
     try {
         const { id } = req.params;
-        const { titre, date, equipe, phase, priorite, atouts } = req.body;
-        const tache = await Tache.findById(id);
+        const { titre, date, equipe, phase, priorite, atouts, description } = req.body;
 
+        const tache = await Tache.findById(id);
+        if (!tache) {
+            return res.status(404).json({ status: false, message: "Tâche non trouvée" });
+        }
+
+        // Store old values for comparison
+        const oldValues = {
+            titre: tache.titre,
+            date: tache.date,
+            description:tache.description,
+            priorite: tache.priorite,
+            atouts: tache.atouts,
+            phase: tache.phase,
+            equipe: tache.equipe
+        };
+        let nomsUtilisateurs = '';
+        const utilisateurs = await Utilisateur.find({ _id: { $in: equipe } });
+        nomsUtilisateurs = utilisateurs.map(u => u.nom).join(', ');
+
+        // Update task details
         tache.titre = titre;
         tache.date = date;
+        tache.description=description;
         tache.priorite = priorite;
         tache.atouts = atouts;
         tache.phase = phase;
@@ -590,13 +321,53 @@ export const modifierTache = async (req, res) => {
 
         await tache.save();
 
-        res.status(200).json({ status: true, message: "Tâche modifiée avec succès" });
+        // Fetch team members for notification
+
+        for(let memberId of tache.equipe){
+            const utilisateur = await Utilisateur.findById(memberId);
+            if (utilisateur && utilisateur.email) {
+                const subject = `Mise à jour de la tâche: ${oldValues.titre}`;
+                const message = `
+                    <div style="font-family: Arial, sans-serif; line-height: 1.5; color: #333; padding: 20px; background-color: #f4f4f4; border-radius: 8px;">
+                        <h2 style="color: #4CAF50; text-align: center;">Bonjour ${utilisateur.nom},</h2>
+                        <p style="font-size: 16px; color: #555; text-align: center;">La tâche suivante a été mise à jour :</p>
+                        <div style="background-color: #fff; padding: 15px; border-radius: 5px; border: 1px solid #ddd; margin-bottom: 20px;">
+                            <h3>Ancienne Tâche:</h3>
+                            <p><strong>Titre:</strong> ${oldValues.titre}</p>
+                            <p><strong>Date:</strong> ${new Date(oldValues.date).toDateString()}</p>
+                            <p><strong>Description:</strong> ${oldValues.description}</p>
+                            <p><strong>Phase:</strong> ${oldValues.phase}</p>
+                            <p><strong>Priorité:</strong> ${oldValues.priorite}</p>
+                            <p><strong>Atouts:</strong> ${oldValues.atouts}</p>
+                        </div>
+                        <div style="background-color: #fff; padding: 15px; border-radius: 5px; border: 1px solid #ddd; margin-bottom: 20px;">
+                            <h3>Nouvelle Tâche:</h3>
+                            <p><strong>Titre:</strong> ${titre}</p>
+                            <p><strong>Date:</strong> ${new Date(date).toDateString()}</p>
+                            <p><strong>Description:</strong> ${description}</p>
+                            <p><strong>Phase:</strong> ${phase}</p>
+                            <p><strong>Priorité:</strong> ${priorite}</p>
+                            <p><strong>Atouts:</strong> ${atouts}</p>
+                        </div>
+                        <p style="font-size: 16px; color: #555; text-align: center;">
+                            Cordialement,<br>
+                            <span style="color: #4CAF50;">L'équipe de gestion des tâches: ${nomsUtilisateurs}</span>
+                        </p>
+                    </div>
+                `;
+
+                await sendEmail(utilisateur.email, subject, message);
+            }
+        }
+
+        res.status(200).json({ status: true, message: "Tâche modifiée avec succès et notifications envoyées" });
 
     } catch (error) {
         console.log(error);
         return res.status(400).json({ status: false, message: error.message });
     }
-}
+};
+
 
 
 
@@ -643,11 +414,9 @@ export const tacheSupprimee = async (req, res) => {
                         </p>
                     </div>
                 `;
-
                 await sendEmail(utilisateur.email, subject, message);
             }
         }
-
         res.status(200).json({ status: true, message: "Tâche supprimée avec succès" });
 
     } catch (error) {
@@ -656,9 +425,6 @@ export const tacheSupprimee = async (req, res) => {
     }
 };
 
-
-
-  
 
 
 export const supprimerRestorer = async (req, res) => {
@@ -701,6 +467,8 @@ export const creerSousTache = async (req, res) => {
         };
         const tache = await Tache.findById(id);
         tache.sousTaches.push(NouvellesSousTache);
+         // Get the team members (equipe) from the task
+        const equipe = tache.equipe; // This is where equipe is defined
         await tache.save();
         let nomsUtilisateurs = '';
         const utilisateurs = await Utilisateur.find({ _id: { $in: equipe } });
@@ -733,7 +501,6 @@ export const creerSousTache = async (req, res) => {
     </p>
   </div>
 `;
-
           
           await sendEmail(utilisateur.email, subject, message);
         }
@@ -746,7 +513,7 @@ export const creerSousTache = async (req, res) => {
     }
 }
 
-
+  
 
 
 export const searchTaches = async (req, res) => {
@@ -770,3 +537,53 @@ export const searchTaches = async (req, res) => {
     }
 
 };
+
+
+
+
+// Function to get taches for a specific user
+// export const getTachesForUser = async (req, res) => {
+//     try {
+//       const { userId } = req.params; // Correct destructuring for userId
+  
+//       // Find tasks where the userId exists in the equipe array
+//       const tasks = await Tache.find({ equipe: { $in: [userId] } });
+  
+//       // If no tasks found, return a 404 status
+//       if (tasks.length === 0) {
+//         return res.status(404).json({ message: "No tasks found for this user" });
+//       }
+  
+//       // Return the tasks
+//       return res.json(tasks);
+//     } catch (error) {
+//       console.error("Error fetching tasks:", error.message);
+//       res.status(500).json({ message: "Failed to fetch tasks" });
+//     }
+//   };
+  
+
+// 
+
+export const getTachesForUser = async (req, res) => {
+    try {
+      const { userId } = req.params;
+      
+      // Add validation for userId
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+    //   const user= Utilisateur.findById(userId);
+  
+      const tasks = await Tache.find({ 
+        equipe: userId,
+        isTrashed: false  // Only get non-trashed tasks
+      }).populate('equipe', 'nom'); // Populate user details if needed
+      
+      return res.json(tasks);
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+      return res.status(500).json({ message: "Failed to fetch tasks" });
+    }
+  };
+  

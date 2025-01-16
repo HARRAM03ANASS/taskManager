@@ -7,17 +7,21 @@ import { getInitials } from "../utils";
 import clsx from "clsx";
 import AjouterUtilisateur from "../components/AjouterUtilisateur";
 import ConfirmationDialog, { UserAction } from "../components/DialogsViewList";
-import { useGetEquipeListeQuery, useSupprimerUtilisateurMutation, useUserActionMutation } from "../redux/slices/api/userApiSlice";
+import { useGetEquipeListeQuery, useSupprimerUtilisateurMutation, useUserActionMutation,  } from "../redux/slices/api/userApiSlice";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 const Users = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [open, setOpen] = useState(false);
   const [openAction, setOpenAction] = useState(false);
   const [selected, setSelected] = useState(null);
-  const { data, refetch } = useGetEquipeListeQuery();
   const [supprimerUtilisateur] = useSupprimerUtilisateurMutation();
   const [userAction] = useUserActionMutation();
+  const { data, refetch } = useGetEquipeListeQuery();
+
+  
+
 
   const userActionHandler = async() => {
     try {
@@ -57,9 +61,10 @@ const Users = () => {
     setSelected(el);
     setOpen(true);
   };
-  const userStatusClick = (el) => {
+  const userStatusClick = async (el) => {
     setSelected(el);
     setOpenAction(true);
+
   }
 
   const TableEntete = () => (
@@ -75,6 +80,7 @@ const Users = () => {
   );
 
   const TableLigne = ({ utilisateur }) => (
+    
     <tr className="border-b border-gray-200 text-gray-600 hover:bg-gray-400/10">
       <td className="py-2">
         <div className="flex items-center gap-3">
@@ -83,7 +89,10 @@ const Users = () => {
               {getInitials(utilisateur.nom)}
             </span>
           </div>
-          {utilisateur.nom}
+          <Link to={`/user-tasks/${utilisateur._id}`} className="text-blue-700 hover:text-blue-500">
+             {utilisateur.nom}
+          </Link>
+           {/* {utilisateur.nom} */}
         </div>
       </td>
       <td className="-py-2">{utilisateur.titre}</td>
@@ -159,7 +168,7 @@ const Users = () => {
         onClick={userActionHandler}
       />
     </>
-  );
+  )
 };
 
 export default Users;
