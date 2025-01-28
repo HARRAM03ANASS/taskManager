@@ -16,7 +16,6 @@ import {
   backgrounds,
 } from "../../utils";
 import InfosUtilisateurs from "../InfosUtilisateurs";
-import AjouterTache from "./AjouterTache";
 import Bouton from "../Bouton";
 import ConfirmationDialog from "../DialogsViewList";
 import { useTachesSupprimeesMutation } from "../../redux/slices/api/tacheApiSlice";
@@ -65,7 +64,7 @@ const Table = ({ taches }) => {
         <th className="py-2">Titre de tâche</th>
         <th className="py-2">Priorité</th>
         <th className="py-2">Créée le</th>
-        <th className="py-2">Atouts</th>
+        <th className="py-2">Pièces jointes</th>
         <th className="py-2">Equipe</th>
       </tr>
     </thead>
@@ -166,12 +165,6 @@ const Table = ({ taches }) => {
         open={openDialog}
         setOpen={setOpenDialog}
         onClick={deleteHandler}
-      />
-      <AjouterTache
-        open={openEdit}
-        setOpen={setOpenEdit}
-        tache={selected}
-        key={new Date().getTime()}
       />
     </>
   );

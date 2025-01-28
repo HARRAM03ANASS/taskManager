@@ -28,17 +28,13 @@ const NotificationPanel = () => {
 
   const [marquerCommeLu] = useMarquerCommeLuMutation();
 
-  // const readHandler = async (type, id) => {
-  //   await marquerCommeLu({ type, id }).unwrap();
-  //   refetch();
-  // };
-  const readHandler = async(type, id) => {
+  const readHandler = async (type, id) => {
     await marquerCommeLu({
-        isReadType: type === "all" ? "tous" : "one",
-        id
+      isReadType: type === "all" ? "tous" : "one",
+      id,
     }).unwrap();
     refetch();
-};
+  };
   console.log(data);
   const viewHandler = async (el) => {
     setSelected(el);
@@ -77,7 +73,7 @@ const NotificationPanel = () => {
           leaveFrom="opacity-100 translate-y-0"
           leaveTo="opacity-0 translate-y-1"
         >
-          <Popover.Panel className="absolute -right-16 md:-right-2 z-10 mt-5 flex w-screen max-w-max px-4">
+          <Popover.Panel className="absolute -right-16 md:-right-2 z-10 mt-5 flex w-screen max-w-max px-4 fontfam">
             {({ close }) =>
               data?.length > 0 && (
                 <div className="w-screen max-w-md flex-auto overflow-hidden rounded-3xl bg-white text-sm leading-6 shadow-lg ring-1 ring-gray-900/5">
@@ -128,6 +124,11 @@ const NotificationPanel = () => {
         </Transition>
       </Popover>
       <VoirNotifications open={open} setOpen={setOpen} el={selected} />
+      <style jsx global>{`
+        .fontfam {
+          font-family: "Roboto Slab", serif;
+        }
+      `}</style>
     </>
   );
 };

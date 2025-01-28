@@ -82,13 +82,27 @@ export const tacheApiSlice = apiSlice.injectEndpoints({
                 credentials: "include",
             }),
         }),
-        // getTachesForUser: builder.query({
-        //     query: (userId) => ({
-        //       url: `${TACHE_URL}/${userId}`,  // Make sure this matches your backend route
-        //       method: "GET",
-        //       credentials: "include"
+        postActivity: builder.mutation({
+            query: ({ id, activity }) => ({
+              url: `${TACHE_URL}/activite/${id}`,
+              method: "POST",
+              body: {
+                type: activity.type,
+                activite: activity.activite,
+                atouts: activity.atouts // Add this line to include the files
+              },
+              credentials: "include",
+            }),
+          }),
+        //   createBulkTasks: builder.mutation({
+        //     query: (tasks) => ({
+        //       url: `${TACHE_URL}/bulk`,
+        //       method: 'POST',
+        //       body: { tasks },
+        //       credentials: 'include',
         //     }),
-        // })
+        //   }),
+          
         
         
     })
@@ -104,5 +118,5 @@ export const {
     useCreerSousTacheMutation,
     useGetSingleTaskQuery,
     useSearchTachesQuery,
-    // useGetTachesForUserQuery,
+    usePostActivityMutation,
 } = tacheApiSlice;

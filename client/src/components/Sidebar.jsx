@@ -1,110 +1,156 @@
+// import React from "react";
+// import { MdChevronLeft, MdChevronRight, MdMenu } from "react-icons/md";
+// import { FaBuilding, FaTasks, FaTrashAlt, FaUsers, FaTachometerAlt } from "react-icons/fa";
+// import { Link, useLocation } from "react-router-dom";
+// import { useSelector, useDispatch } from "react-redux";
+// import { toggleSidebar } from "../redux/slices/authSlice";
+// import clsx from "clsx";
+
+// const linkData = [
+//   { label: "Tableau de bord", link: "dashboard", icon: <FaTachometerAlt /> },
+//   { label: "Tâches", link: "taches", icon: <FaTasks /> },
+//   { label: "Clients", link: "client", icon: <FaBuilding /> },
+//   { label: "Equipe", link: "equipe", icon: <FaUsers /> },
+//   { label: "Supprimée", link: "supprime", icon: <FaTrashAlt /> },
+// ];
+
+// const Sidebar = () => {
+//   const dispatch = useDispatch();
+//   const { isExpanded } = useSelector((state) => state.auth);
+//   const location = useLocation();
+//   const path = location.pathname.split("/")[1];
+
+//   const NavLink = ({ el }) => (
+//     <Link
+//       to={el.link}
+//       className={clsx(
+//         "w-full flex gap-2 px-3 py-2 rounded-full items-center text-gray-800 text-base hover:bg-[#2564ed2d] transition-all duration-200",
+//         path === el.link.split("/")[0] ? "bg-blue-700 text-neutral-100" : "",
+//         !isExpanded && "justify-center px-2"
+//       )}
+//     >
+//       <span className="text-xl">{el.icon}</span>
+//       {isExpanded && (
+//         <span className="hover:text-[#2564ed] transition-all duration-200">
+//           {el.label}
+//         </span>
+//       )}
+//     </Link>
+//   );
+
+//   return (
+//     <div
+//       className={clsx(
+//         "relative h-screen bg-white shadow-lg flex flex-col items-center justify-center transition-all duration-300",
+//         isExpanded ? "w-64" : "w-16"
+//       )}
+//     >
+//       {/* Toggle Button */}
+//       <button
+//         onClick={() => dispatch(toggleSidebar())}
+//         className="absolute left-3 top-6 text-gray-600 p-1 hover:bg-gray-100 transition-all duration-200"
+//       >
+//         {isExpanded ? <MdMenu size={25} /> : <MdMenu size={25} />}
+//       </button>
+
+//       {/* Logo (géré avec une condition) */}
+//       {isExpanded && (
+//         <div className="mb-8">
+//           <img
+//             src="../../../public/logo.png"
+//             alt="logoBAN"
+//             className="transition-all duration-200 w-32  -mt-5"
+//           />
+//         </div>
+//       )}
+
+//       {/* Navigation Links */}
+//       <div
+//         className={clsx(
+//           "flex flex-col gap-y-5",
+//           isExpanded ? "mt-0" : "mt-10" // Ajustement des marges si le logo est supprimé
+//         )}
+//       >
+//         {linkData.map((link) => (
+//           <NavLink el={link} key={link.label} />
+//         ))}
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Sidebar;
 import React from "react";
-import {
-  MdDashboard,
-  MdOutlineAddTask,
-  MdOutlinePendingActions,
-  MdSettings,
-  MdTaskAlt,
-} from "react-icons/md";
-import { FaTasks, FaTrashAlt, FaUsers } from "react-icons/fa";
-import { useDispatch, useSelector } from "react-redux";
+import { MdMenu } from "react-icons/md";
+import { FaBuilding, FaTasks, FaTrashAlt, FaUsers, FaTachometerAlt } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
-import { setOpenSidebar } from "../redux/slices/authSlice";
+import { useDispatch,useSelector } from "react-redux";
+import { toggleSidebar } from "../redux/slices/authSlice";
 import clsx from "clsx";
-
-
-const linkData = [
-  {
-    label: "Tableau de bord",
-    link: "dashboard",
-    icon: <MdDashboard />,
-  },
-  {
-    label: "Tâches",
-    link: "taches",
-    icon: <FaTasks />,
-  },
-  {
-    label: "Terminées",
-    link: "termine/Terminée",
-    icon: <MdTaskAlt />,
-  },
-  {
-    label: "En cours",
-    link: "en-cours/En cours",
-    icon: <MdOutlinePendingActions />,
-  },
-  {
-    label: "À faire",
-    link: "a-faire/À faire",
-    icon: <MdOutlinePendingActions />,
-  },
-  {
-    label: "Equipe",
-    link: "equipe",
-    icon: <FaUsers />,
-  },
-  {
-    label: "Supprimée",
-    link: "supprime",
-    icon: <FaTrashAlt />,
-  },
-];
-
+import { useAuth } from "../redux/slices/authSlice";
 
 const Sidebar = () => {
-  const { user } = useSelector((state) => state.auth);
+    const dispatch = useDispatch();
+    const { isExpanded } = useSelector((state) => state.auth);
+    const { isAdmin } = useAuth(); // Access user role
+    const location = useLocation();
+    const path = location.pathname.split("/")[1];
 
-  const dispatch = useDispatch();
-  const location = useLocation();
+    const linkData = [
+        { label: "Tableau de bord", link: "dashboard", icon: <FaTachometerAlt /> },
+        { label: "Tâches", link: "taches", icon: <FaTasks /> },
+        { label: "Clients", link: "client", icon: <FaBuilding /> },
+        { label: "Supprimée", link: "supprime", icon: <FaTrashAlt /> },
+        ...(isAdmin ? [{ label: "Equipe", link: "equipe", icon: <FaUsers /> }] : []),
+    ];
 
-  const path = location.pathname.split("/")[1];
-
-  const sidebarLinks = user?.isAdmin ? linkData : linkData.slice(0, 5);
-
-  const closeSidebar = () => {
-    dispatch(setOpenSidebar(false));
-  };
-
-  const NavLink = ({ el }) => {
-    return (
-      <Link
-        to={el.link}
-        onClick={closeSidebar}
-        className={clsx(
-          "w-full lg:w-3/4 flex gap-2 px-3 py-2 rounded-full items-center text-gray-800 text-base hover:bg-[#2564ed2d]",
-          path === el.link.split("/")[0] ? "bg-blue-700 text-neutral-100" : ""
-        )}
-      >
-        {el.icon}
-        <span className='hover:text-[#2564ed]'>{el.label}</span>
-      </Link>
+    const NavLink = ({ el }) => (
+        <Link
+            to={el.link}
+            className={clsx(
+                "w-full flex gap-2 px-3 py-2 rounded-full items-center text-gray-800 text-base hover:bg-[#2564ed2d] transition-all duration-200",
+                path === el.link.split("/")[0] ? "bg-blue-700 text-neutral-100" : "",
+                !isExpanded && "justify-center px-2"
+            )}
+        >
+            <span className="text-xl">{el.icon}</span>
+            {isExpanded && (
+                <span className="hover:text-[#2564ed] transition-all duration-200">
+                    {el.label}
+                </span>
+                
+            )}
+        </Link>
     );
-  };
-  return (
-    <div className='w-full  h-full flex flex-col gap-6 p-5'>
-      <h1 className='flex gap-1 items-center'>
-        {/* <p className='bg-blue-600 p-2 rounded-full'>
-          <MdOutlineAddTask className='text-white text-2xl font-black' />
-        </p>
-        <span className='text-2xl font-bold text-black'>TaskMe</span> */}
-        <img src="../../../public/logo.png" alt="logoBAN" />
-      </h1>
 
-      <div className='flex-1 flex flex-col gap-y-5 py-8'>
-        {sidebarLinks.map((link) => (
-          <NavLink el={link} key={link.label} />
-        ))}
-      </div>
-
-      <div className=''>
-        <button className='w-full flex gap-2 p-2 items-center text-lg text-gray-800'>
-          <MdSettings />
-          <span>Paramètres</span>
-        </button>
-      </div>
-    </div>
-  );
+    return (
+        <div
+            className={clsx(
+                "relative h-screen bg-white shadow-lg flex flex-col items-center justify-center transition-all duration-300",
+                isExpanded ? "w-64" : "w-16"
+            )}
+        >
+            {/* Toggle Button */}
+         <img
+            src="../../../public/logo.png"
+            alt="logoBAN"
+            className="transition-all duration-200 w-32  -mt-5"
+          />
+            <button
+                onClick={() => dispatch(toggleSidebar())}
+                className="absolute left-3 top-6 text-gray-600 p-1 hover:bg-gray-100 transition-all duration-200"
+            >
+                <MdMenu size={25} />
+            </button>
+            
+            {/* Navigation Links */}
+            <div className="flex flex-col gap-y-5 mt-10">
+                {linkData.map((link) => (
+                    <NavLink el={link} key={link.label} />
+                ))}
+            </div>
+        </div>
+    );
 };
 
 export default Sidebar;

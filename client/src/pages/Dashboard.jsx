@@ -1,218 +1,206 @@
 import React from "react";
-import clsx from "clsx";
-import {
-  MdAdminPanelSettings,
-  MdKeyboardArrowDown,
-  MdKeyboardArrowUp,
-  MdKeyboardDoubleArrowUp,
-} from "react-icons/md";
+import { MdAdminPanelSettings } from "react-icons/md";
 import { LuClipboardEdit } from "react-icons/lu";
-import { FaNewspaper, FaUsers } from "react-icons/fa";
+import { FaNewspaper } from "react-icons/fa";
 import { FaArrowsToDot } from "react-icons/fa6";
-import moment from "moment";
-import Diagramme from "../components/Diagramme";
-import InfosUtilisateurs from "../components/InfosUtilisateurs";
-import {
-  tache_type,
-  stylesprioritetaches,
-  backgrounds,
-  getInitials,
-} from "../utils";
 import { useGetDashboardStatsQuery } from "../redux/slices/api/tacheApiSlice";
-
-const TableDesTaches = ({ taches }) => {
-  const icons = {
-    elevée: <MdKeyboardDoubleArrowUp />,
-    moyenne: <MdKeyboardArrowUp />,
-    normale: <MdKeyboardArrowUp />,
-    faible: <MdKeyboardArrowDown />,
-  };
-
-  const TableLigne = ({ task }) => (
-    <tr className="border-b border-gray-300 text-gray-600 hover:bg-gray-300/10">
-      <td className="py-2">
-        <div className="flex items-center gap-2">
-          <div
-            className={clsx("w-4 h-4 rounded-full", tache_type[task.phase])}
-          />
-          <p className="text-base text-black">{task.titre}</p>
-        </div>
-      </td>
-      <td className="py-2 px-4">
-        <div className="flex gap-1 items-center">
-          <span
-            className={clsx("text-lg", stylesprioritetaches[task.priorite])}
-          >
-            {icons[task.priorite.toLowerCase()]}
-          </span>
-          <span className="capitalize">{task.priorite}</span>
-        </div>
-      </td>
-      <td className="py-2 px-4">
-        <div className="flex">
-          {task.equipe.map((m, index) => (
-            <div
-              key={index}
-              className={clsx(
-                "w-7 h-7 rounded-full text-white flex items-center justify-center text-sm -mr-1",
-                backgrounds[index % backgrounds.length]
-              )}
-            >
-              <InfosUtilisateurs user={m} />
-            </div>
-          ))}
-        </div>
-      </td>
-      <td className="py-2 px-4 hidden md:block">
-        <span className="text-base text-gray-600">
-          {moment(task?.date).fromNow()}
-        </span>
-      </td>
-    </tr>
-  );
-
-  return (
-    <div className="w-full md:w-2/3 bg-white px-2 md:px-4 pt-4 pb-4 shadow-md rounded">
-      <table className="w-full">
-        <thead className="border-b border-gray-300">
-          <tr className="text-black text-left">
-            <th className="py-2">Titre de tâche</th>
-            <th className="py-2 px-4">Priorité</th>
-            <th className="py-2 px-4">Equipe</th>
-            <th className="py-2 px-4 hidden md:block">Créée le</th>
-          </tr>
-        </thead>
-        <tbody>
-          {taches?.map((task, id) => (
-            <TableLigne key={id} task={task} />
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
-
-const TableUtilisateurs = ({ users }) => {
-  const TableEntete = () => (
-    <thead className="border-b border-gray-300 dark:border-gray-600">
-      <tr className="text-black dark-text-white text-left">
-        <th className="py-2">Nom complet</th>
-        <th className="py-2">Statut</th>
-        <th className="py-2">Créé le</th>
-      </tr>
-    </thead>
-  );
-  const TableLigne = ({ user }) => (
-    <tr className="border-b border-gray-200 text-gray-600 hover:bg-gray-400/10">
-      <td className="py-2">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full text-white flex items-center justify-center text-sm bg-violet-700">
-            <span className="text-center">{getInitials(user?.nom)}</span>
-          </div>
-          <div>
-            <p>{user.nom}</p>
-            <span className="text-xs text-black">{user?.role}</span>
-          </div>
-        </div>
-      </td>
-      <td>
-        <p
-          className={clsx(
-            "w-fit px-3 py-1 rounded-full text-sm",
-            user?.isActive ? "bg-blue-200" : "bg-yellow-100"
-          )}
-        >
-          {user?.isActive ? "Active" : "Disabled"}
-        </p>
-      </td>
-      <td className="py-2 text-sm">{moment(user?.createdAt).fromNow()}</td>
-    </tr>
-  );
-  return (
-    <div className="w-full md:w-1/3 bg-white h-fit px-2 md:px-6 py-4 shadow-md rounded">
-      <table className="w-full mb-5">
-        <TableEntete />
-        <tbody>
-          {users?.map((user, index) => (
-            <TableLigne key={index + user?._id} user={user} />
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   const { data } = useGetDashboardStatsQuery();
   const totals = data?.taches;
-  console.log(data);
 
   const stats = [
     {
       _id: "1",
       label: "Toutes les tâches",
       total: data?.totalTaches || 0,
-      icon: <FaNewspaper />,
-      bg: "bg-[#1d4ed8]",
+      icon: <FaNewspaper className="w-6 h-6" />,
+      bg: "bg-gradient-to-br from-blue-600 to-blue-800",
+      delay: "0s",
+      link: "/taches"
     },
     {
       _id: "2",
       label: "Tâches terminées",
       total: totals?.["Terminée"] || 0,
-      icon: <MdAdminPanelSettings />,
-      bg: "bg-[#0f766e]",
+      icon: <MdAdminPanelSettings className="w-6 h-6" />,
+      bg: "bg-gradient-to-br from-teal-600 to-teal-800",
+      delay: "0.3s",
+      link: "/termine/Terminée"
     },
     {
       _id: "3",
       label: "Tâches en cours",
       total: totals?.["En cours"] || 0,
-      icon: <LuClipboardEdit />,
-      bg: "bg-[#f59e0b]",
+      icon: <LuClipboardEdit className="w-6 h-6" />,
+      bg: "bg-gradient-to-br from-amber-500 to-amber-700",
+      delay: "0.2s",
+      link: "/en-cours/En cours"
     },
     {
       _id: "4",
       label: "Tâches à faire",
       total: totals?.["À faire"] || 0,
-      icon: <FaArrowsToDot />,
-      bg: "bg-[#be185d]",
+      icon: <FaArrowsToDot className="w-6 h-6" />,
+      bg: "bg-gradient-to-br from-pink-600 to-pink-800",
+      delay: "0.1s",
+      link: "/a-faire/À faire"
     },
   ];
-  const Card = ({ label, count, bg, icon }) => {
+
+  const Card = ({ label, count, bg, icon, delay, link }) => {
     return (
-      <div className="w-full h-32 bg-white p-5 shadow-md rounded-md flex items-center justify-between">
-        <div className="h-full flex flex-1 flex-col justify-between">
-          <p className="text-base text-gray-600">{label}</p>
-          <span className="text-2xl font-semibold">{count}</span>
-          <span className="text-sm text-gray-400">{"110 last month"}</span>
-        </div>
+      <Link to={link} className="block w-full">
         <div
-          className={clsx(
-            "w-10 h-10 rounded-full flex items-center justify-center text-white",
-            bg
-          )}
+          className={`group w-full bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg 
+            hover:shadow-xl transition-all duration-300 ease-in-out
+            animate-slideUp hover:translate-y-[-4px]
+            relative overflow-hidden fontfam cursor-pointer font-parkinsans`}
+          style={{
+            animationDelay: delay,
+            animationFillMode: "backwards",
+            zIndex: 0,
+          }}
         >
-          {icon}
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <div
+                className={`p-3 rounded-lg ${bg} text-white transform 
+                group-hover:scale-110 transition-transform duration-300`}
+              >
+                {icon}
+              </div>
+              <span className="text-3xl font-bold text-gray-800 dark:text-gray-100">
+                {count}
+              </span>
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">
+                {label}
+              </h3>
+            </div>
+          </div>
+          <div
+            className={`absolute inset-0 opacity-0 ${bg} 
+            group-hover:opacity-5 transition-opacity duration-300 ease-in-out`}
+          />
         </div>
-      </div>
+      </Link>
     );
   };
 
   return (
-    <div className="h-full py-4">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
-        {stats.map(({ icon, bg, label, total }, index) => (
-          <Card key={index} icon={icon} bg={bg} label={label} count={total} />
-        ))}
-      </div>
-      <div className="w-full bg-white my-16 p-4 rounded shadow-sm">
-        <h4 className="text-xl text-gray-600 font-semibold">
-          Tableau par priorité
-        </h4>
-        <Diagramme data={data?.graphDonnees} />
-      </div>
-      <div className="w-full flex flex-col md:flex-row gap-4 2xl:gap-10 py-8">
-        <TableDesTaches taches={data?.derniere10Tache} />
-        <TableUtilisateurs users={data?.utilisateurs} />
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-6">
+      <style jsx global>{`
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes drawLine {
+          from {
+            stroke-dashoffset: 1000;
+          }
+          to {
+            stroke-dashoffset: 0;
+          }
+        }
+
+        .animate-slideUp {
+          animation: slideUp 0.5s ease-out;
+        }
+
+        .animate-line {
+          animation: drawLine 1s ease-out forwards;
+          stroke-dasharray: 1000;
+          stroke-dashoffset: 1000;
+        }
+      `}</style>
+
+      <div className="relative h-full py-8">
+        <div className="w-1/2 mx-auto mb-24">
+          <Card
+            key={stats[0]._id}
+            icon={stats[0].icon}
+            bg={stats[0].bg}
+            label={stats[0].label}
+            count={stats[0].total}
+            delay={stats[0].delay}
+            link={stats[0].link}
+          />
+        </div>
+
+        <svg
+          className="absolute top-5 left-0 w-full h-full pointer-events-none"
+          style={{ zIndex: 0 }}
+        >
+          <line
+            x1="50%"
+            y1="200"
+            x2="50%"
+            y2="180"
+            stroke="#cbd5e1"
+            strokeWidth="2"
+            className="animate-line"
+          />
+          <line
+            x1="16.66%"
+            y1="180"
+            x2="83.33%"
+            y2="180"
+            stroke="#cbd5e1"
+            strokeWidth="2"
+            className="animate-line"
+          />
+          <line
+            x1="16.66%"
+            y1="180"
+            x2="16.66%"
+            y2="220"
+            stroke="#cbd5e1"
+            strokeWidth="2"
+            className="animate-line"
+          />
+          <line
+            x1="50%"
+            y1="180"
+            x2="50%"
+            y2="220"
+            stroke="#cbd5e1"
+            strokeWidth="2"
+            className="animate-line"
+          />
+          <line
+            x1="83.33%"
+            y1="180"
+            x2="83.33%"
+            y2="220"
+            stroke="#cbd5e1"
+            strokeWidth="2"
+            className="animate-line"
+          />
+        </svg>
+
+        <div className="grid grid-cols-3 gap-6 mt-24">
+          {stats.slice(1).map((stat) => (
+            <Card
+              key={stat._id}
+              icon={stat.icon}
+              bg={stat.bg}
+              label={stat.label}
+              count={stat.total}
+              delay={stat.delay}
+              link={stat.link}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

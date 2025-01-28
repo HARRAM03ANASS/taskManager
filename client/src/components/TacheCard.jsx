@@ -1,25 +1,18 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   MdKeyboardArrowUp,
   MdKeyboardArrowDown,
   MdKeyboardDoubleArrowUp,
   MdAttachFile,
 } from "react-icons/md";
-import { BiMessageAltDetail } from "react-icons/bi";
-import { IoMdAdd } from "react-icons/io";
 import { FaList } from "react-icons/fa";
+import { BsCircle, BsCircleFill } from "react-icons/bs";
 import { useSelector } from "react-redux";
-import clsx from "clsx";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 import {
   dateFormater,
-  stylesprioritetaches,
-  tache_type,
-  backgrounds,
 } from "../utils";
 import DialogueTache from "./Tache/DialogueTache";
-import InfosUtilisateurs from "./InfosUtilisateurs";
-import AjouterSousTache from "./Tache/AjouterSousTache";
 
 const icones = {
   elevée: <MdKeyboardDoubleArrowUp />,
@@ -27,116 +20,89 @@ const icones = {
   faible: <MdKeyboardArrowDown />,
 };
 
+const getPriorityClass = (priorite) => {
+  return priorite.toLowerCase() === 'elevée'
+    ? 'bg-red-100 text-red-800'
+    : (priorite.toLowerCase() === 'faible'
+      ? 'bg-green-100 text-green-800'
+      : 'bg-orange-100 text-orange-800');
+};
+
 const TacheCard = ({ tache }) => {
   const { user } = useSelector((state) => state.auth);
-  const [open, setOpen] = useState(false);
-  const equipes = tache?.equipe;
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   const handleCardClick = () => {
-    navigate(`/tache/${tache._id}`); // Redirect to task details page using the task ID
+    navigate(`/tache/${tache._id}`);
   };
-
-  const handleAddSousTacheClick = (event) => {
-    event.stopPropagation(); // Stop the click event from propagating to the parent div
-    setOpen(true); // Open the "Ajouter Sous Tache" modal
+  const renderPhaseCircles = () => {
+    const phases = ['à faire', 'en cours', 'terminée'];
+    const currentPhase = tache?.phase?.toLowerCase();
+  
+    const getPhaseColor = (phase) => {
+      switch(phase) {
+        case 'à faire':
+          return 'text-blue-500';
+        case 'en cours':
+          return 'text-orange-500';
+        case 'terminée':
+          return 'text-green-500';
+        default:
+          return 'text-gray-400';
+      }
+    };
+  
+    return phases.map((phase, index) => (
+      <div key={phase} className="flex items-center">
+        {phase === currentPhase ? (
+          <BsCircleFill className={`${getPhaseColor(currentPhase)} w-3 h-3`} />
+        ) : (
+          <BsCircle className="text-gray-400 w-3 h-3" />
+        )}
+        {index < phases.length - 1 && (
+          <div className="w-4 h-0.5 bg-gray-300" />
+        )}
+      </div>
+    ));
   };
 
   return (
-    <div onClick={handleCardClick} className="w-full h-fit bg-white shadow-md p-4 rounded cursor-pointer"> {/* Make the card clickable */}
-      <div className="w-full flex justify-between">
-        <div
-          className={clsx(
-            "flex flex-1 gap-1 items-center text-sm font-medium",
-            stylesprioritetaches[tache?.priorite]
-          )}
-        >
-          <span className="text-lg">{icones[tache?.priorite]}</span>
-          <span className="text-capitalize">{tache?.priorite}</span>
-        </div>
-        {user?.isAdmin && <DialogueTache task={tache} />}
-      </div>
-      <div className="flex items-center gap-2">
-        <div
-          className={clsx("w-4 h-4 rounded-full", tache_type[tache?.phase])}
-        />
-        <h4 className="line-clamp-1 text-black">{tache?.titre}</h4>
-      </div>
-      <span className="text-sm text-gray-600">
-        {dateFormater(new Date(tache?.date))}
-      </span>
-      <p>
-        Description: {tache?.description?.length > 100 ? `${tache.description.substring(0, 100)}...` : tache?.description || "No description provided"}
-      </p>
-
-      <div className="w-full border-t border-gray-200 my-2" />
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-3">
-          <div className="flex gap-1 items-center text-sm text-gray-600">
-            <BiMessageAltDetail />
-            <span>{tache?.activites?.length}</span>
+    <div className="bg-white rounded-lg shadow-md p-4 mb-4 cursor-pointer" onClick={handleCardClick}>
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-4">
+          <span className={`px-2 py-1 rounded-full text-sm flex items-center gap-1 ${getPriorityClass(tache?.priorite)}`}>
+            {icones[tache?.priorite.toLowerCase()]}
+            {tache?.priorite}
+          </span>
+          <div className="flex items-center">
+            {renderPhaseCircles()}
           </div>
-          <div className="flex gap-1 items-center text-sm text-gray-600">
+        </div>
+        <DialogueTache task={tache} />
+      </div>
+
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold mb-2">{tache?.titre}</h3>
+        <p className="text-sm text-gray-600 mb-2">
+          {dateFormater(new Date(tache?.date))}
+        </p>
+        <p className="text-md text-gray-700">
+          Description: {tache?.description?.length > 100 ? `${tache.description.substring(0, 100)}...` : tache?.description || "No description provided"}
+        </p>
+      </div>
+
+      <div className="flex justify-between items-center">
+        <div className="flex gap-4">
+          <div className="flex items-center gap-1">
+            <FaList />
+            <span>{tache?.activitees?.length}</span>
+          </div>
+          <div className="flex items-center gap-1">
             <MdAttachFile />
             <span>{tache?.atouts?.length}</span>
           </div>
-          <div className="flex gap-1 items-center text-sm text-gray-600">
-            <FaList />
-            <span>{tache?.sousTaches?.length}</span>
-          </div>
-        </div>
-        <div className="flex flex-row-reverse">
-          {tache?.equipe?.map((membre, index) => (
-            <div
-              key={membre._id || index}
-              className={clsx(
-                "w-7 h-7 rounded-full text-white flex items-center justify-center text-sm -mr-1",
-                backgrounds[index % backgrounds?.length]
-              )}
-            >
-              <InfosUtilisateurs user={membre} />
-            </div>
-          ))}
         </div>
       </div>
-
-      {/* Description sous-tâche */}
-      {tache?.sousTaches?.length > 0 ? (
-        <div className="py-4 border-t border-gray-200">
-          <h5 className="text-base line-clamp-1 text-black">
-            {tache?.sousTaches[0].titre}
-          </h5>
-
-          <div className="p-4 space-x-8">
-            <span className="text-sm text-gray-600">
-              {dateFormater(new Date(tache?.sousTaches[0]?.date))}
-            </span>
-            <span className="bg-blue-600/10 px-3 py-1 rounded-full text-blue-700 font-medium">
-              {tache?.sousTaches[0].tag}
-            </span>
-          </div>
-        </div>
-      ) : (
-        <div className="py-4 border-t border-gray-200">
-          <span className="text-gray-500">Aucune sous tâche</span>
-        </div>
-      )}
-      <div className="w-full pb-2">
-        {
-          user?.isAdmin ? (
-            <button
-              onClick={handleAddSousTacheClick} // Attach the click handler for the button
-              disabled={user.isAdmin ? false : true}
-              className="w-full flex gap-4 items-center text-sm text-gray-500 font-semibold disabled:cursor-not-allowed disabled::text-gray-300"
-            >
-              <IoMdAdd className="text-lg" />
-              <span>Ajouter une sous-tâche</span>
-            </button>
-          ) : 
-          <div></div>
-        }
-      </div>
-      <AjouterSousTache open={open} setOpen={setOpen} id={tache._id} equipe={equipes} />
     </div>
   );
 };
